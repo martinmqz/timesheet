@@ -61,10 +61,10 @@ export default function TimesheetForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rate: parseFloat(rate),
+          rate: Number(rate),
           lineItems: lineItems.map((li) => ({
             date: new Date(li.date),
-            minutes: parseInt(li.minutes),
+            minutes: Number(li.minutes),
             description: li.description,
           })),
         }),
@@ -83,13 +83,13 @@ export default function TimesheetForm({
     }
   }
 
-  // Totals calculation
+  // ✅ Grand totals calculation
   const totalMinutes = lineItems.reduce(
-    (sum, li) => sum + (parseInt(li.minutes) || 0),
+    (sum, li) => sum + (Number(li.minutes) || 0),
     0
   );
   const totalHours = totalMinutes / 60;
-  const totalCost = totalHours * (parseFloat(rate) || 0);
+  const totalCost = totalHours * (Number(rate) || 0);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -169,7 +169,7 @@ export default function TimesheetForm({
         </button>
       </div>
 
-      {/* Totals */}
+      {/* ✅ Grand Totals */}
       <div className="bg-gray-800 p-4 rounded-md text-gray-100">
         <p data-testid="total-time">
           Total Time: {totalMinutes} minutes ({totalHours.toFixed(2)} hours)
