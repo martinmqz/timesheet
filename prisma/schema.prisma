@@ -1,0 +1,99 @@
+// schema.prisma
+// This file defines database schema for Prisma ORM.
+// It includes Timesheet models plus the required NextAuth models
+// (User, Account, Session, VerificationToken) so NextAuth’s PrismaAdapter works correctly.
+
+datasource db {
+  provider = "postgresql" // Database provider: PostgreSQL
+}
+
+generator client {
+  provider   = "prisma-client-js" // Generates the Prisma Client for queries
+  engineType = "client" // Prisma 7 requires engineType = "client" unless you switch to binary
+}
+
+// -------------------------
+// Core User Model
+// -------------------------
+model User {
+  id            String    @id @default(uuid()) // Unique identifier for the user
+  name          String? // Display name (optional, provided by OAuth providers)
+  email         String?   @unique // User’s email address, must be unique
+  emailVerified DateTime? // Timestamp when email was verified (used by NextAuth)
+  image         String? // Profile image URL (from OAuth provider)
+  password      String? // Optional password if you support credentials auth
+  createdAt     DateTime  @default(now()) // Timestamp when the user account was created
+
+  timesheets Timesheet[] // Relation: one user can have many timesheets
+  accounts   Account[] // OAuth accounts linked to this user
+  sessions   Session[] // Sessions linked to this user
+}
+
+// -------------------------
+// Timesheet Models
+// -------------------------
+model Timesheet {
+  id        Int      @id @default(autoincrement()) // Primary key, auto-increment integer. Int faster for lookups
+  userId    String // Foreign key linking to the User table
+  rate      Decimal  @db.Decimal(10, 2) // Hourly rate or per-minute rate for cost calculation (Decimal for precision)
+  createdAt DateTime @default(now()) // Timestamp when the timesheet was created
+
+  lineItems LineItem[] // Relation: one timesheet can have many line items
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Relation back to the User. Cascade ensures timesheets are deleted if the user is deleted.
+
+  @@index([userId]) // Index for faster lookups by userId
+}
+
+model LineItem {
+  id          Int      @id @default(autoincrement()) // Primary key, auto-increment integer
+  timesheetId Int // Foreign key linking to the Timesheet table
+  date        DateTime // Date of the work entry
+  minutes     Int // Number of minutes worked for this entry
+  description String // Free-text description of the work performed
+
+  timesheet Timesheet @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  // Relation back to the Timesheet. Cascade ensures line items are deleted if the timesheet is deleted.
+
+  @@index([timesheetId]) // Index for faster lookups by timesheetId
+}
+
+// -------------------------
+// NextAuth Models (required by PrismaAdapter)
+// -------------------------
+
+model Account {
+  id                String  @id @default(cuid()) // Unique identifier for the account
+  userId            String // Foreign key linking to the User table
+  type              String // Type of account (e.g., oauth)
+  provider          String // Provider name (e.g., google, github)
+  providerAccountId String // Provider-specific account ID
+  refresh_token     String? // OAuth refresh token
+  access_token      String? // OAuth access token
+  expires_at        Int? // Expiration timestamp
+  token_type        String? // Token type (e.g., bearer)
+  scope             String? // OAuth scopes
+  id_token          String? // ID token (for OpenID Connect)
+  session_state     String? // Session state
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId]) // Ensure uniqueness per provider/account
+}
+
+model Session {
+  id           String   @id @default(cuid()) // Unique identifier for the session
+  sessionToken String   @unique // Token used to identify the session
+  userId       String // Foreign key linking to the User table
+  expires      DateTime // Expiration timestamp
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String // Identifier (usually email)
+  token      String   @unique // Verification token
+  expires    DateTime // Expiration timestamp
+
+  @@unique([identifier, token]) // Ensure uniqueness per identifier/token pair
+}
