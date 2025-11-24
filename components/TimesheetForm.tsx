@@ -23,14 +23,22 @@ interface Timesheet {
   lineItems: LineItem[];
 }
 
-export default function TimesheetForm({ onCreated }: { onCreated?: (sheet: Timesheet) => void }) {
+export default function TimesheetForm({
+  onCreated,
+}: {
+  onCreated?: (sheet: Timesheet) => void;
+}) {
   const [rate, setRate] = useState("");
   const [lineItems, setLineItems] = useState<LineItemFormData[]>([
     { date: "", minutes: "", description: "" },
   ]);
   const [loading, setLoading] = useState(false);
 
-  function handleLineItemChange(index: number, field: keyof LineItemFormData, value: string) {
+  function handleLineItemChange(
+    index: number,
+    field: keyof LineItemFormData,
+    value: string
+  ) {
     const copy = [...lineItems];
     copy[index][field] = value;
     setLineItems(copy);
@@ -75,12 +83,26 @@ export default function TimesheetForm({ onCreated }: { onCreated?: (sheet: Times
     }
   }
 
+  // Totals calculation
+  const totalMinutes = lineItems.reduce(
+    (sum, li) => sum + (parseInt(li.minutes) || 0),
+    0
+  );
+  const totalHours = totalMinutes / 60;
+  const totalCost = totalHours * (parseFloat(rate) || 0);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Rate input */}
       <div>
-        <label className="block text-sm font-medium text-gray-200">Rate ($/hr)</label>
+        <label
+          htmlFor="rate"
+          className="block text-sm font-medium text-gray-200"
+        >
+          Rate ($/hr)
+        </label>
         <input
+          id="rate"
           type="number"
           step="0.01"
           value={rate}
@@ -96,6 +118,7 @@ export default function TimesheetForm({ onCreated }: { onCreated?: (sheet: Times
         {lineItems.map((li, idx) => (
           <div key={idx} className="grid grid-cols-3 gap-3 items-end">
             <input
+              id={`date-${idx}`}
               type="date"
               value={li.date}
               onChange={(e) => handleLineItemChange(idx, "date", e.target.value)}
@@ -103,18 +126,24 @@ export default function TimesheetForm({ onCreated }: { onCreated?: (sheet: Times
               required
             />
             <input
+              id={`minutes-${idx}`}
               type="number"
               value={li.minutes}
-              onChange={(e) => handleLineItemChange(idx, "minutes", e.target.value)}
+              onChange={(e) =>
+                handleLineItemChange(idx, "minutes", e.target.value)
+              }
               placeholder="Minutes"
               className="rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
               required
             />
             <div className="flex gap-2">
               <input
+                id={`description-${idx}`}
                 type="text"
                 value={li.description}
-                onChange={(e) => handleLineItemChange(idx, "description", e.target.value)}
+                onChange={(e) =>
+                  handleLineItemChange(idx, "description", e.target.value)
+                }
                 placeholder="Description"
                 className="flex-1 rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
                 required
@@ -138,6 +167,14 @@ export default function TimesheetForm({ onCreated }: { onCreated?: (sheet: Times
         >
           + Add Line Item
         </button>
+      </div>
+
+      {/* Totals */}
+      <div className="bg-gray-800 p-4 rounded-md text-gray-100">
+        <p data-testid="total-time">
+          Total Time: {totalMinutes} minutes ({totalHours.toFixed(2)} hours)
+        </p>
+        <p data-testid="total-cost">Total Cost: ${totalCost.toFixed(2)}</p>
       </div>
 
       {/* Submit button */}
