@@ -25,23 +25,32 @@ A modern timesheet tracking application built with Next.js, TypeScript, and Post
 ## 📦 Project Structure
 
 ```
-├── app/
-│   ├── api/
-│   │   ├── auth/              # NextAuth configuration
-│   │   └── timesheets/        # Timesheet API endpoints
-│   ├── layout.tsx             # Root layout
-│   ├── page.tsx               # Home page
-│   └── globals.css            # Global styles
-├── components/
-│   ├── TimeSheetForm.tsx       # Form for creating timesheets
-│   └── NextAuthProvider.tsx    # Auth provider wrapper
-├── lib/
-│   ├── auth.ts                # NextAuth configuration
-│   ├── prisma.ts              # Prisma client singleton
-├── prisma/
-│   ├── schema.prisma          # Database schema
-│   └── migrations/            # Database migrations
-└── public/                    # Static assets
+├── src/                      # All application source code 
+│   ├── app/                  # Next.js App Router 
+│   │   ├── api/              # API endpoints 
+│   │   │   ├── auth/         # NextAuth configuration 
+│   │   │   └── timesheets/   # Timesheet API endpoints 
+│   │   ├── layout.tsx        # Root layout 
+│   │   ├── page.tsx          # Home page 
+│   │   └── globals.css       # Global styles 
+│   ├── components/           # Reusable React components
+│   │   ├── TimesheetForm.tsx # Form for creating timesheets 
+│   │   ├── TimesheetList.tsx # List of saved timesheets
+│   │   └── NextAuthProvider.tsx # Auth provider wrapper 
+│   ├── lib/                  # External integrations and singletons 
+│   │   ├── auth.ts           # NextAuth configuration 
+│   │   └── prisma.ts         # Prisma client singleton 
+│   ├── prisma/               # Database schema and migrations 
+│   │   ├── schema.prisma     # Database schema 
+│   │   └── migrations/       # Prisma migrations 
+│   ├── utils/                # Pure helper functions 
+│   │   ├── math.ts           # Totals calculations (minutes → hours, cost) 
+│   │   ├── format.ts         # Formatting helpers (currency, dates) 
+│   │   └── index.ts          # Re-exports 
+│   └── __tests__/            # Vitest + Testing Library tests 
+│       ├── TimesheetForm.test.tsx 
+│       └── utils.test.ts     # Example utility tests 
+└── public/                   # Static assets
 ```
 
 ## 📊 Database Schema
@@ -306,3 +315,9 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 ## 📄 License
 
 This project is open source and available under the MIT License.
+
+
+
+
+
+![image](https://martinstack.dev/pixel/?timesheet)
