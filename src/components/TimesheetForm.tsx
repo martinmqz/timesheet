@@ -116,7 +116,7 @@ export default function TimesheetForm({
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-100">Line Items</h3>
         {lineItems.map((li, idx) => (
-          <div key={idx} className="grid grid-cols-3 gap-3 items-end">
+          <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <input
               id={`date-${idx}`}
               type="date"

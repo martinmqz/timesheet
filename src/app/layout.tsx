@@ -39,7 +39,7 @@ export default function RootLayout({
 
             {/* Footer */}
             <footer className="border-t border-gray-700 bg-gray-800 py-4 text-center text-sm text-gray-400">
-              © {new Date().getFullYear()} Timesheet App
+              © {new Date().getFullYear()} Timesheet App - by MartinMQZ
             </footer>
           </main>
         </NextAuthProvider>
