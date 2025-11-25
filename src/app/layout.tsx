@@ -28,7 +28,6 @@ export default function RootLayout({
                 <h1 className="text-xl font-semibold text-white">
                   Timesheet App
                 </h1>
-                {/* Add nav links or user menu here */}
               </div>
             </header>
 

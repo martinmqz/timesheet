@@ -158,19 +158,24 @@ export default function TimesheetForm({
     field: keyof LineItemFormData,
     value: string
   ) {
-    setLineItems(
-      lineItems.map((item) =>
+    setLineItems((prevLineItems) =>
+      prevLineItems.map((item) =>
         item.id === id ? { ...item, [field]: value } : item
       )
     );
   }
 
   function addLineItem() {
-    setLineItems([...lineItems, { id: crypto.randomUUID(), date: "", minutes: "", description: "" }]);
+    setLineItems((prevLineItems) => [
+      ...prevLineItems,
+      { id: crypto.randomUUID(), date: "", minutes: "", description: "" },
+    ]);
   }
 
   function removeLineItem(id: string) {
-    setLineItems(lineItems.filter((item) => item.id !== id));
+    setLineItems((prevLineItems) =>
+      prevLineItems.filter((item) => item.id !== id)
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -195,7 +200,7 @@ export default function TimesheetForm({
       if (res.ok && onCreated) {
         onCreated(data);
         setRate("");
-        setLineItems([{ id: crypto.randomUUID(), date: "", minutes: "", description: "" }]);
+        setLineItems(() => [{ id: crypto.randomUUID(), date: "", minutes: "", description: "" }]);
       }
     } catch (err) {
       console.error("Failed to create timesheet:", err);

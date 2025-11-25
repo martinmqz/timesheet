@@ -13,7 +13,6 @@ export async function GET(
   }
 
   const params = await context.params;
-  // params.id is now available
   const { id } = params;
 
   const timesheet = await prisma.timesheet.findUnique({
