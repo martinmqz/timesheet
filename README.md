@@ -283,7 +283,10 @@ pnpm prisma:format
 ## 🚨 Troubleshooting
 
 ### DATABASE_URL not set
-Make sure `.env.local` exists and contains a valid PostgreSQL connection string.
+- Make sure `.env.local` exists and contains a valid PostgreSQL connection string.
+- If Prisma cannot find the `DATABASE_URL` variable in `.env.local`, create a `.env` file in the project root and add a valid PostgreSQL connection string, for example: 
+`DATABASE_URL="postgresql://postgres.[PROJECT_ID]:[PASSWORD]@aws-#-...-#.pooler.supabase.com:5432/postgres"`.
+  - Replace `[PROJECT_ID]` and `[PASSWORD]` with your actual credentials. Check with your database provider (e.g., Supabase) for the correct connection details.
 
 ### Prisma Client not found
 Run `pnpm prisma:generate` to regenerate the Prisma Client.
