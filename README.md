@@ -308,6 +308,9 @@ This is not part of the core specification but can be implemented as a reporting
 - [NextAuth.js Documentation](https://next-auth.js.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 
+<img width="819" height="842" alt="image" src="https://github.com/user-attachments/assets/e36c71a7-d83d-44bc-b29a-37ac92c57881" />
+
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
