@@ -22,18 +22,6 @@ export default function TimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function fetchTimesheets() {
-    try {
-      const res = await fetch("/api/timesheets");
-      const data = await res.json();
-      setTimesheets(data);
-    } catch (err) {
-      console.error("Failed to fetch timesheets:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
     fetchTimesheets();
   }, []);
@@ -55,30 +43,43 @@ export default function TimesheetsPage() {
       ) : (
         <div className="space-y-6">
           {timesheets.map((sheet) => {
-            const totalMinutes = sheet.lineItems.reduce((sum, li) => sum + li.minutes, 0);
+            const totalMinutes = sheet.lineItems.reduce(
+              (sum, li) => sum + li.minutes,
+              0
+            );
             const totalHours = totalMinutes / 60;
             const rate = Number(sheet.rate);
             const totalCost = rate * totalHours;
 
             return (
-              <div key={sheet.id} className="bg-gray-800 p-6 rounded-lg shadow-md">
+              <div
+                key={sheet.id}
+                className="bg-gray-800 p-6 rounded-lg shadow-md"
+              >
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold">
-                    Timesheet #{sheet.id} — {new Date(sheet.createdAt).toLocaleDateString()}
+                    Timesheet #{sheet.id} —{" "}
+                    {new Date(sheet.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                <p className="text-gray-300 mb-2">Rate: ${rate.toFixed(2)} / hr</p>
                 <p className="text-gray-300 mb-2">
-                  Total Time: {totalMinutes} minutes ({totalHours.toFixed(2)} hours)
+                  Rate: ${rate.toFixed(2)} / hr
                 </p>
-                <p className="text-gray-300 mb-4">Total Cost: ${totalCost.toFixed(2)}</p>
+                <p className="text-gray-300 mb-2">
+                  Total Time: {totalMinutes} minutes ({totalHours.toFixed(2)}{" "}
+                  hours)
+                </p>
+                <p className="text-gray-300 mb-4">
+                  Total Cost: ${totalCost.toFixed(2)}
+                </p>
 
                 <ul className="space-y-1 text-gray-200">
                   {sheet.lineItems.map((li) => (
                     <li key={li.id} className="flex justify-between text-sm">
                       <span>
-                        {new Date(li.date).toLocaleDateString()} — {li.description}
+                        {new Date(li.date).toLocaleDateString()} —{" "}
+                        {li.description}
                       </span>
                       <span>{li.minutes} min</span>
                     </li>
@@ -91,4 +92,16 @@ export default function TimesheetsPage() {
       )}
     </div>
   );
+
+  async function fetchTimesheets() {
+    try {
+      const res = await fetch("/api/timesheets");
+      const data = await res.json();
+      setTimesheets(data);
+    } catch (err) {
+      console.error("Failed to fetch timesheets:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 }

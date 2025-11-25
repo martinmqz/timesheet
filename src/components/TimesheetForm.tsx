@@ -34,55 +34,6 @@ export default function TimesheetForm({
   ]);
   const [loading, setLoading] = useState(false);
 
-  function handleLineItemChange(
-    index: number,
-    field: keyof LineItemFormData,
-    value: string
-  ) {
-    const copy = [...lineItems];
-    copy[index][field] = value;
-    setLineItems(copy);
-  }
-
-  function addLineItem() {
-    setLineItems([...lineItems, { date: "", minutes: "", description: "" }]);
-  }
-
-  function removeLineItem(index: number) {
-    setLineItems(lineItems.filter((_, i) => i !== index));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/timesheets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rate: Number(rate),
-          lineItems: lineItems.map((li) => ({
-            date: new Date(li.date),
-            minutes: Number(li.minutes),
-            description: li.description,
-          })),
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && onCreated) {
-        onCreated(data);
-        setRate("");
-        setLineItems([{ date: "", minutes: "", description: "" }]);
-      }
-    } catch (err) {
-      console.error("Failed to create timesheet:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   // ✅ Grand totals calculation
   const totalMinutes = lineItems.reduce(
     (sum, li) => sum + (Number(li.minutes) || 0),
@@ -116,12 +67,17 @@ export default function TimesheetForm({
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-100">Line Items</h3>
         {lineItems.map((li, idx) => (
-          <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+          <div
+            key={idx}
+            className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end"
+          >
             <input
               id={`date-${idx}`}
               type="date"
               value={li.date}
-              onChange={(e) => handleLineItemChange(idx, "date", e.target.value)}
+              onChange={(e) =>
+                handleLineItemChange(idx, "date", e.target.value)
+              }
               className="rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
               required
             />
@@ -189,4 +145,53 @@ export default function TimesheetForm({
       </div>
     </form>
   );
+
+  function handleLineItemChange(
+    index: number,
+    field: keyof LineItemFormData,
+    value: string
+  ) {
+    const copy = [...lineItems];
+    copy[index][field] = value;
+    setLineItems(copy);
+  }
+
+  function addLineItem() {
+    setLineItems([...lineItems, { date: "", minutes: "", description: "" }]);
+  }
+
+  function removeLineItem(index: number) {
+    setLineItems(lineItems.filter((_, i) => i !== index));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/timesheets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rate: Number(rate),
+          lineItems: lineItems.map((li) => ({
+            date: new Date(li.date),
+            minutes: Number(li.minutes),
+            description: li.description,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && onCreated) {
+        onCreated(data);
+        setRate("");
+        setLineItems([{ date: "", minutes: "", description: "" }]);
+      }
+    } catch (err) {
+      console.error("Failed to create timesheet:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 }
