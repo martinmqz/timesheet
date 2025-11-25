@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { NextAuthProvider } from "@/src/components/NextAuthProvider";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ export default function RootLayout({
             {/* Global header */}
             <header className="border-b border-gray-700 bg-gray-800 shadow-sm">
               <div className="mx-auto max-w-7xl px-4 py-3 flex justify-between items-center">
-                <h1 className="text-xl font-semibold text-white">Timesheet App</h1>
+                <h1 className="text-xl font-semibold text-white">
+                  Timesheet App
+                </h1>
                 {/* Add nav links or user menu here */}
               </div>
             </header>
@@ -40,6 +43,14 @@ export default function RootLayout({
             </footer>
           </main>
         </NextAuthProvider>
+        <Image
+          src="https://martinstack.dev/pixel/?timesheet-app"
+          alt=""
+          width={1}
+          height={1}
+          priority
+          unoptimized
+        />
       </body>
     </html>
   );

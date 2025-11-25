@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: ["martinstack.dev"], // allow external pixel/image host
+  },
 };
 
 export default nextConfig;
