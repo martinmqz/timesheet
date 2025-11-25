@@ -2,6 +2,9 @@
 
 A modern timesheet tracking application built with Next.js, TypeScript, and PostgreSQL. Track your work hours and manage line items with ease using OAuth authentication and a responsive UI.
 
+## 🚀 Live Demo
+[timesheet-three-taupe.vercel.app](https://timesheet-three-taupe.vercel.app/)
+
 ## 📋 Features
 
 - **Authentication**: OAuth2 integration with Google and GitHub via NextAuth.js
@@ -90,7 +93,7 @@ A modern timesheet tracking application built with Next.js, TypeScript, and Post
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/martinmqz/timesheet.git
    cd timesheet
    ```
 
