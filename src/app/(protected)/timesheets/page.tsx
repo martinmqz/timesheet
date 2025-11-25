@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TimesheetForm from "@/src/components/TimesheetForm"; // import your form
+import { calculateTotals } from "@/src/utils/timesheet";
 
 interface LineItem {
   id: number;
@@ -21,10 +22,25 @@ interface Timesheet {
 export default function TimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTimesheets = useCallback(async () => {
+    setError(null);
+    try {
+      const res = await fetch("/api/timesheets");
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      setTimesheets(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchTimesheets();
-  }, []);
+  }, [fetchTimesheets]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
@@ -35,6 +51,11 @@ export default function TimesheetsPage() {
         <TimesheetForm onCreated={() => fetchTimesheets()} />
       </div>
 
+      {error && (
+        <div className="mb-4 p-4 bg-red-900 border border-red-700 rounded text-red-100">
+          Error: {error}
+        </div>
+      )}
       {/* 👉 List of saved timesheets */}
       {loading ? (
         <p className="text-gray-200">Loading timesheets...</p>
@@ -43,13 +64,12 @@ export default function TimesheetsPage() {
       ) : (
         <div className="space-y-6">
           {timesheets.map((sheet) => {
-            const totalMinutes = sheet.lineItems.reduce(
-              (sum, li) => sum + li.minutes,
-              0
+            const { totalMinutes, totalHours, totalCost } = calculateTotals(
+              sheet.lineItems,
+              sheet.rate
             );
-            const totalHours = totalMinutes / 60;
+
             const rate = Number(sheet.rate);
-            const totalCost = rate * totalHours;
 
             return (
               <div
@@ -92,16 +112,4 @@ export default function TimesheetsPage() {
       )}
     </div>
   );
-
-  async function fetchTimesheets() {
-    try {
-      const res = await fetch("/api/timesheets");
-      const data = await res.json();
-      setTimesheets(data);
-    } catch (err) {
-      console.error("Failed to fetch timesheets:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
 }

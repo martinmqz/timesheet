@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { calculateTotals } from "../utils/timesheet";
 
 interface LineItemFormData {
+  id: string;
   date: string;
   minutes: string;
   description: string;
@@ -19,7 +21,7 @@ interface Timesheet {
   id: number;
   userId: string;
   rate: number;
-  createdAt: Date;
+  createdAt: string;
   lineItems: LineItem[];
 }
 
@@ -30,17 +32,22 @@ export default function TimesheetForm({
 }) {
   const [rate, setRate] = useState("");
   const [lineItems, setLineItems] = useState<LineItemFormData[]>([
-    { date: "", minutes: "", description: "" },
+    { id: "", date: "", minutes: "", description: "" },
   ]);
   const [loading, setLoading] = useState(false);
 
+  // Initialize IDs only on client to prevent hydration mismatch
+  useEffect(() => {
+    setLineItems([
+      { id: crypto.randomUUID(), date: "", minutes: "", description: "" },
+    ]);
+  }, []);
+
   // ✅ Grand totals calculation
-  const totalMinutes = lineItems.reduce(
-    (sum, li) => sum + (Number(li.minutes) || 0),
-    0
+  const { totalMinutes, totalHours, totalCost } = calculateTotals(
+    lineItems.map((li) => ({ minutes: Number(li.minutes) || 0 })),
+    Number(rate) || 0
   );
-  const totalHours = totalMinutes / 60;
-  const totalCost = totalHours * (Number(rate) || 0);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -66,27 +73,27 @@ export default function TimesheetForm({
       {/* Line items */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-100">Line Items</h3>
-        {lineItems.map((li, idx) => (
+        {lineItems.map((li) => (
           <div
-            key={idx}
+            key={li.id}
             className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end"
           >
             <input
-              id={`date-${idx}`}
+              id={`date-${li.id}`}
               type="date"
               value={li.date}
               onChange={(e) =>
-                handleLineItemChange(idx, "date", e.target.value)
+                handleLineItemChange(li.id, "date", e.target.value)
               }
               className="rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
               required
             />
             <input
-              id={`minutes-${idx}`}
+              id={`minutes-${li.id}`}
               type="number"
               value={li.minutes}
               onChange={(e) =>
-                handleLineItemChange(idx, "minutes", e.target.value)
+                handleLineItemChange(li.id, "minutes", e.target.value)
               }
               placeholder="Minutes"
               className="rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
@@ -94,11 +101,11 @@ export default function TimesheetForm({
             />
             <div className="flex gap-2">
               <input
-                id={`description-${idx}`}
+                id={`description-${li.id}`}
                 type="text"
                 value={li.description}
                 onChange={(e) =>
-                  handleLineItemChange(idx, "description", e.target.value)
+                  handleLineItemChange(li.id, "description", e.target.value)
                 }
                 placeholder="Description"
                 className="flex-1 rounded-md bg-gray-900 border border-gray-700 text-gray-100 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
@@ -107,7 +114,7 @@ export default function TimesheetForm({
               {lineItems.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeLineItem(idx)}
+                  onClick={() => removeLineItem(li.id)}
                   className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 >
                   Remove
@@ -147,21 +154,23 @@ export default function TimesheetForm({
   );
 
   function handleLineItemChange(
-    index: number,
+    id: string,
     field: keyof LineItemFormData,
     value: string
   ) {
-    const copy = [...lineItems];
-    copy[index][field] = value;
-    setLineItems(copy);
+    setLineItems(
+      lineItems.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
   }
 
   function addLineItem() {
-    setLineItems([...lineItems, { date: "", minutes: "", description: "" }]);
+    setLineItems([...lineItems, { id: crypto.randomUUID(), date: "", minutes: "", description: "" }]);
   }
 
-  function removeLineItem(index: number) {
-    setLineItems(lineItems.filter((_, i) => i !== index));
+  function removeLineItem(id: string) {
+    setLineItems(lineItems.filter((item) => item.id !== id));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -186,7 +195,7 @@ export default function TimesheetForm({
       if (res.ok && onCreated) {
         onCreated(data);
         setRate("");
-        setLineItems([{ date: "", minutes: "", description: "" }]);
+        setLineItems([{ id: crypto.randomUUID(), date: "", minutes: "", description: "" }]);
       }
     } catch (err) {
       console.error("Failed to create timesheet:", err);

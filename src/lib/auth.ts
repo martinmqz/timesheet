@@ -4,6 +4,7 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import { prisma } from "@/src/lib/prisma";
+import getRequiredEnv from "../utils/getRequiredEnv";
 
 declare module "next-auth" {
   interface Session {
@@ -20,12 +21,12 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: getRequiredEnv("GOOGLE_CLIENT_ID"),
+      clientSecret: getRequiredEnv("GOOGLE_CLIENT_SECRET"),
     }),
     GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: getRequiredEnv("GITHUB_ID"),
+      clientSecret: getRequiredEnv("GITHUB_SECRET"),
     }),
   ],
   session: {

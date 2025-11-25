@@ -37,6 +37,30 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { rate, lineItems } = body;
 
+    // Validate inputs
+    if (typeof rate !== "number" || rate < 0) {
+      return NextResponse.json(
+        { error: "Invalid rate value" },
+        { status: 400 }
+      );
+    }
+
+    if (!Array.isArray(lineItems) || lineItems.length === 0) {
+      return NextResponse.json(
+        { error: "At least one line item is required" },
+        { status: 400 }
+      );
+    }
+
+    for (const item of lineItems) {
+      if (typeof item.minutes !== "number" || item.minutes < 0) {
+        return NextResponse.json(
+          { error: "Invalid minutes value" },
+          { status: 400 }
+        );
+      }
+    }
+    
     const timesheet = await prisma.timesheet.create({
       data: {
         userId: session.user.id,
