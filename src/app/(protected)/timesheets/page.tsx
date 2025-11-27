@@ -6,7 +6,7 @@ import { calculateTotals } from "@/src/utils/timesheet";
 
 interface LineItem {
   id: number;
-  date: string;
+  date: Date;
   minutes: number;
   description: string;
 }
