@@ -17,7 +17,7 @@ A modern timesheet tracking application built with Next.js, TypeScript, and Post
 
 ## 🏗️ Tech Stack
 
-- **Frontend**: Next.js 16.0.4 with React 19
+- **Frontend**: Next.js 16.0.7 with React 19
 - **Database**: PostgreSQL with Prisma ORM 7
 - **Authentication**: NextAuth.js 4.24 with Google & GitHub providers
 - **Styling**: Tailwind CSS 4 with dark mode
